@@ -1,4 +1,4 @@
-using System.Collections;
+    using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
@@ -7,6 +7,9 @@ namespace DIALOGUE
 {
     public class DialogueSystem : MonoBehaviour
     {
+        [SerializeField]private DialogueSystemConfigurationSO _config;
+        public DialogueSystemConfigurationSO config => _config;
+
         public DialogueContainer dialogueContainer = new DialogueContainer();
         private ConversationManager conversationManager ;
         private TextArchitect architect;
@@ -36,11 +39,21 @@ namespace DIALOGUE
         private void Initialize()
         {
             if (_initialized)
-                return; 
+                return;
+
+            if (dialogueContainer.dialogueText == null)
+            {
+                Debug.LogError("dialogueText не назначен в DialogueContainer.");
+                return;
+            }
 
             architect = new TextArchitect(dialogueContainer.dialogueText);
-            conversationManager = new ConversationManager(architect); 
+            conversationManager = new ConversationManager(architect);
+
+            _initialized = true;
+            Debug.Log("DialogueSystem инициализирован.");
         }
+
         public void OnUserPrompt_Next()
         {
             onUserPropt_Next?.Invoke();

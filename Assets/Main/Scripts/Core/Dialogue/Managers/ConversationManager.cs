@@ -1,3 +1,4 @@
+using COMMANDS;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -48,25 +49,34 @@ namespace DIALOGUE
 
                 if (line.hasDialogue)
                     yield return Line_RunDialogue(line);
-               
+
 
                 if (line.hasCommands)
                     yield return Line_RunCommands(line);
+
+                if (line.hasDialogue)
+                    yield return WaitForUserInput();
             }
         }
 
         IEnumerator Line_RunDialogue(DIALOGUE_LINES line)
         {
             if(line.hasSpeaker)
-                dialogueSystem.ShowSpeakerName(line.speaker);
+                dialogueSystem.ShowSpeakerName(line.speaker.displayname);
 
             yield return BuildLineSegments(line.dialogue);
-
-            yield return WaitForUserInput();
         }
         IEnumerator Line_RunCommands(DIALOGUE_LINES line)
         {
-            Debug.Log(line.commands);
+            List<DL_COMMAND_DATA.Command> commands = line.commands.commands;
+
+            foreach(DL_COMMAND_DATA.Command command in commands)
+            {
+                if (command.waitForCompletion)
+                    yield return CommandManager.instance.Execute(command.name, command.arguments);
+                else
+                CommandManager.instance.Execute(command.name, command.arguments);
+            }
             yield return null;
         }
 
